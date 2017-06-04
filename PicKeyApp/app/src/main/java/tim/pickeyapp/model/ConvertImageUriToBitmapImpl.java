@@ -26,7 +26,7 @@ import tim.pickeyapp.custom_object.LabeledImage;
 
 public class ConvertImageUriToBitmapImpl implements ConvertImageUriToBitmap {
 
-    final private int CAMERA_CODE = 0;
+    final private int CAMERA_CODE = 6969;
 
 
 

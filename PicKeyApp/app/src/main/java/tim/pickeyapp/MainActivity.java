@@ -8,7 +8,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -20,11 +19,13 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.afollestad.materialcamera.MaterialCamera;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
 
@@ -35,15 +36,17 @@ import java.util.ArrayList;
 import io.realm.Realm;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
+import tim.pickeyapp.custom_object.LabeledImage;
+import tim.pickeyapp.custom_object.LabeledImageRealm;
 import tim.pickeyapp.model.AdapterImagesList;
 import tim.pickeyapp.model.ConvertImageUriToBitmapImpl;
 import tim.pickeyapp.model.GoogleLabelGeneratorImpl;
-import tim.pickeyapp.custom_object.LabeledImage;
-import tim.pickeyapp.custom_object.LabeledImageRealm;
 import tim.pickeyapp.model.StoreAndRetrievingDataImpl;
 
 public class MainActivity extends AppCompatActivity implements MainView, View.OnClickListener {
 
+    private static final int CAMERA_RQ = 6969;;
+    private static final int GALLERY_RQ = 1;
     private MainPresenter presenter;
     int REQUEST_CAMERA = 0;
     private int PICK_IMAGE_REQUEST = 1;
@@ -78,6 +81,8 @@ public class MainActivity extends AppCompatActivity implements MainView, View.On
         editSearch = (EditText) findViewById(R.id.editSearch);
         iconSearch = (ImageView) findViewById(R.id.iconSearch);
         txtTip = (TextView) findViewById(R.id.txtEmptyList);
+
+
 
         fab_camera.setOnClickListener(this);
         fab_gallery.setOnClickListener(this);
@@ -134,8 +139,12 @@ public class MainActivity extends AppCompatActivity implements MainView, View.On
     // Intent for camera
     private void takePhoto() {
         // Camera permissions is already available, show the camera preview.
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(intent, REQUEST_CAMERA);
+       /* Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivityForResult(intent, REQUEST_CAMERA);*/
+
+        new MaterialCamera(this)
+                .stillShot() // launches the Camera in stillshot mode
+                .start(CAMERA_RQ);
     }
 
     @Override // Permission from user to use Camera and Gallery
@@ -204,20 +213,22 @@ public class MainActivity extends AppCompatActivity implements MainView, View.On
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode == Activity.RESULT_OK) {
-
-            try {
-                presenter.onImageUriReady(data.getData(), this, requestCode);
-                listImages.smoothScrollToPosition(0);
-                // Creating a loading item
-                adapterImagesList.addLoadingItem();
-                // Count the loading items to keep the order of new ready items
-                counterNewItemLine++;
-                txtTip.setVisibility(View.GONE);
-            } catch (IOException e) {
-                e.printStackTrace();
+            if (requestCode == CAMERA_RQ || requestCode == GALLERY_RQ) {
+                try {
+                    presenter.onImageUriReady(data.getData(), this, requestCode);
+                    listImages.smoothScrollToPosition(0);
+                    // Creating a loading item
+                    adapterImagesList.addLoadingItem();
+                    // Count the loading items to keep the order of new ready items
+                    counterNewItemLine++;
+                    txtTip.setVisibility(View.GONE);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }else{
+                Log.d("requestcode", requestCode+"");
             }
         }
-
     }
 
     @Override  // Send intent with item info and transition info

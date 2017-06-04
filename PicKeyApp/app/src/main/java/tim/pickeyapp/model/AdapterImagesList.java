@@ -74,9 +74,10 @@ public class AdapterImagesList extends RecyclerView.Adapter<AdapterImagesList.Vi
             @Override
             public boolean onLongClick(View view) {
                 // Remove Image when long pressed
-                holder.image.setImageBitmap(null);
-                arrLabeledImages.remove(holder.getAdapterPosition());
-                notifyItemRemoved(holder.getAdapterPosition());
+                int position = holder.getAdapterPosition();
+                arrLabeledImages.get(position).setBitmapImage(null);
+                arrLabeledImages.remove(position);
+                notifyItemRemoved(position);
                 return true;
             }
         });

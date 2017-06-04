@@ -278,6 +278,7 @@ public class MainActivity extends AppCompatActivity implements MainView, View.On
     @Override
     public void onBackPressed() {
         editSearch.clearFocus();
+        super.onBackPressed();
     }
 
     @Override

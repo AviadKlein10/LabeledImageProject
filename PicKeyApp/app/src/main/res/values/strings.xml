@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">PicKeyApp</string>
+    <string name="activity_image_trans">img_trans</string>
+    <string name="activity_text_trans">txt_trans</string>
+    <string name="CLOUD_VISION_API_KEY">AIzaSyDkPD_rauwdC_m5ySY8KbSSMkQM192HRDI</string>
+</resources>

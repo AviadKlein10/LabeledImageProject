@@ -76,6 +76,7 @@ public class AdapterImagesList extends RecyclerView.Adapter<AdapterImagesList.Vi
                 // Remove Image when long pressed
                 int position = holder.getAdapterPosition();
                 arrLabeledImages.get(position).setBitmapImage(null);
+                holder.image.setImageResource(R.drawable.ic_place_holder);
                 arrLabeledImages.remove(position);
                 notifyItemRemoved(position);
                 return true;

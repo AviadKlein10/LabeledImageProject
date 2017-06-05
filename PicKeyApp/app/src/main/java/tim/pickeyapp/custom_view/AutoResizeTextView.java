@@ -96,8 +96,8 @@ public class AutoResizeTextView extends TextView {
     @Override
     public void setText(CharSequence text, BufferType type) {
         if (text != null) {
-            if (text.length() > 40) {
-                text = text.subSequence(0, 37);
+            if (text.length() > 35) {
+                text = text.subSequence(0, 32);
                 text = text.toString() + "...";
                 Log.d("textext", text.toString());
             }

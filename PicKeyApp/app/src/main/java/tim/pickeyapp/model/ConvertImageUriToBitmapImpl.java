@@ -1,5 +1,6 @@
 package tim.pickeyapp.model;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.database.Cursor;
@@ -26,7 +27,7 @@ import tim.pickeyapp.custom_object.LabeledImage;
 
 public class ConvertImageUriToBitmapImpl implements ConvertImageUriToBitmap {
 
-    final private int CAMERA_CODE = 6969;
+    final private int CAMERA_RQ = 6969;
 
 
 
@@ -40,11 +41,16 @@ public class ConvertImageUriToBitmapImpl implements ConvertImageUriToBitmap {
             String imagePath = "";
 
             // Get path if uri received from Camera
-            if(requestCode==CAMERA_CODE){
-                imagePath= getRealPathFromURI(context, imageUri);
+            if(requestCode== CAMERA_RQ){
+                imagePath= getRealPathFromURI_CameraSource(context, imageUri);
+
                 // Get path if uri received from Gallery
-            }else if(android.os.Build.VERSION.SDK_INT>18){
-                imagePath= getRealPathFromURI_API19(context, imageUri);
+            }else if(Build.VERSION.SDK_INT>= Build.VERSION_CODES.KITKAT){
+                if(imageUri.toString().contains("external")){
+                    imagePath= getRealPathFromURI_API19_ExternalSource(context, imageUri);
+                }else{
+                    imagePath= getRealPathFromURI_API19(context, imageUri);
+                }
             }else{
                 imagePath= getRealPathFromURI_APIbelow19(context, imageUri);
             }
@@ -64,6 +70,8 @@ public class ConvertImageUriToBitmapImpl implements ConvertImageUriToBitmap {
 
     }
 
+
+
     private String pullDateFromUri(String imagePath) throws IOException, ParseException {
         ExifInterface ei = new ExifInterface(imagePath);
         String strDate = " ";
@@ -79,6 +87,9 @@ public class ConvertImageUriToBitmapImpl implements ConvertImageUriToBitmap {
       }
         return "unknown";
     }
+
+
+
 
     private Bitmap scaleBitmapDown(Bitmap bitmap, int maxDimension) {
 
@@ -100,7 +111,6 @@ public class ConvertImageUriToBitmapImpl implements ConvertImageUriToBitmap {
         return Bitmap.createScaledBitmap(bitmap, resizedWidth, resizedHeight, false);
     }
 
-
     private int checkIfRotated(String imagePath) throws IOException {
         ExifInterface ei = new ExifInterface(imagePath);
         int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
@@ -119,6 +129,7 @@ public class ConvertImageUriToBitmapImpl implements ConvertImageUriToBitmap {
         return angle;
     }
 
+
     private Bitmap rotateImage(Bitmap source, float angle) {
 
         Bitmap bitmap = null;
@@ -133,7 +144,7 @@ public class ConvertImageUriToBitmapImpl implements ConvertImageUriToBitmap {
         return bitmap;
     }
 
-    private String getRealPathFromURI(Context context,Uri contentURI) {
+    private String getRealPathFromURI_CameraSource(Context context,Uri contentURI) {
         String result;
         Cursor cursor = context.getContentResolver().query(contentURI, null, null, null, null);
         if (cursor == null) {
@@ -147,10 +158,31 @@ public class ConvertImageUriToBitmapImpl implements ConvertImageUriToBitmap {
         return result;
     }
 
+    @TargetApi(Build.VERSION_CODES.KITKAT)
+    public String getRealPathFromURI_API19_ExternalSource(Context context, Uri contentUri) {
+        Cursor cursor = null;
+        try {
+
+            String[] proj = { MediaStore.Images.Media.DATA };
+            cursor = context.getContentResolver().query(contentUri,  proj, null, null, null);
+            int column_index = 0;
+            if (cursor != null) {
+                column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+                cursor.moveToFirst();
+                return cursor.getString(column_index);
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return null;
+    }
+
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private String getRealPathFromURI_API19(Context context, Uri uri){
-        String filePath = "";
+       String filePath = "";
         String wholeID = DocumentsContract.getDocumentId(uri);
 
         // Split at colon, use second item in the array

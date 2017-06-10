@@ -146,9 +146,11 @@ public class AdapterImagesList extends RecyclerView.Adapter<AdapterImagesList.Vi
         if (charSequence.toString().trim().length() > 0) {
             arrLabeledImages = new ArrayList<>();
             for (int i = 0; i < fullArrLabeledImages.size(); i++) {
-                String txtSearch = fullArrLabeledImages.get(i).getLabels().toLowerCase();
-                if (txtSearch.contains(charSequence)) {
-                    arrLabeledImages.add(fullArrLabeledImages.get(i));
+                String txtSearch = fullArrLabeledImages.get(i).getLabels();
+                if (txtSearch!=null) {
+                    if (txtSearch.toLowerCase().contains(charSequence)) {
+                        arrLabeledImages.add(fullArrLabeledImages.get(i));
+                    }
                 }
             }
             notifyDataSetChanged();

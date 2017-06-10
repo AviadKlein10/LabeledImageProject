@@ -19,7 +19,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -45,17 +44,16 @@ import tim.pickeyapp.model.StoreAndRetrievingDataImpl;
 
 public class MainActivity extends AppCompatActivity implements MainView, View.OnClickListener {
 
-    private static final int CAMERA_RQ = 6969;;
-    private static final int GALLERY_RQ = 1;
+    private final int CAMERA_RC = 6969;;
+    private final int GALLERY_RC = 1;
+    private final int CAMERA_PERMISSION_CODE = 0;
     private MainPresenter presenter;
-    int REQUEST_CAMERA = 0;
-    private int PICK_IMAGE_REQUEST = 1;
     private RecyclerView listImages;
     private AdapterImagesList adapterImagesList;
     private ArrayList<LabeledImage> arrLabeledImages;
     private FloatingActionMenu menuBlue;
     private FloatingActionButton fab_camera, fab_gallery;
-    ;
+
     private EditText editSearch;
     private ImageView iconSearch;
     private TextView txtTip;
@@ -82,8 +80,6 @@ public class MainActivity extends AppCompatActivity implements MainView, View.On
         iconSearch = (ImageView) findViewById(R.id.iconSearch);
         txtTip = (TextView) findViewById(R.id.txtEmptyList);
 
-
-
         fab_camera.setOnClickListener(this);
         fab_gallery.setOnClickListener(this);
         iconSearch.setOnClickListener(this);
@@ -94,7 +90,9 @@ public class MainActivity extends AppCompatActivity implements MainView, View.On
         arrLabeledImages = loadList();
 
         //Show textTip if the list is empty
-        if (arrLabeledImages.size() != 0) {
+        if (arrLabeledImages.size() == 0) {
+            txtTip.setVisibility(View.VISIBLE);
+        }else{
             txtTip.setVisibility(View.GONE);
         }
         adapterImagesList = new AdapterImagesList(this, arrLabeledImages, this);
@@ -133,28 +131,24 @@ public class MainActivity extends AppCompatActivity implements MainView, View.On
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), GALLERY_RC);
     }
 
     // Intent for camera
     private void takePhoto() {
-        // Camera permissions is already available, show the camera preview.
-       /* Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(intent, REQUEST_CAMERA);*/
-
-        new MaterialCamera(this)
+             new MaterialCamera(this)
                 .stillShot() // launches the Camera in stillshot mode
-                .start(CAMERA_RQ);
+                .start(CAMERA_RC);
     }
 
     @Override // Permission from user to use Camera and Gallery
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == REQUEST_CAMERA) {
+        if (requestCode == CAMERA_PERMISSION_CODE) {
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 takePhoto();
             }
         }
-        if (requestCode == PICK_IMAGE_REQUEST) {
+        if (requestCode == GALLERY_RC) {
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 selectFromLibrary();
             }
@@ -194,11 +188,11 @@ public class MainActivity extends AppCompatActivity implements MainView, View.On
     private boolean isTakePictureAllow() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                requestPermissions(new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA);
+                requestPermissions(new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
             }
         } else if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PICK_IMAGE_REQUEST);
+                requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, GALLERY_RC);
             }
         } else if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
@@ -213,7 +207,7 @@ public class MainActivity extends AppCompatActivity implements MainView, View.On
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode == Activity.RESULT_OK) {
-            if (requestCode == CAMERA_RQ || requestCode == GALLERY_RQ) {
+            if (requestCode == CAMERA_RC || requestCode == GALLERY_RC) {
                 try {
                     presenter.onImageUriReady(data.getData(), this, requestCode);
                     listImages.smoothScrollToPosition(0);
@@ -225,8 +219,6 @@ public class MainActivity extends AppCompatActivity implements MainView, View.On
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-            }else{
-                Log.d("requestcode", requestCode+"");
             }
         }
     }

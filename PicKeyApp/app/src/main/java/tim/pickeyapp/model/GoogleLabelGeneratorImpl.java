@@ -58,8 +58,7 @@ public class GoogleLabelGeneratorImpl implements GoogleLabelGenerator    {
                     JsonFactory jsonFactory = GsonFactory.getDefaultInstance();
 
                     Vision.Builder builder = new Vision.Builder(httpTransport, jsonFactory, null);
-                    builder.setVisionRequestInitializer(new
-                            VisionRequestInitializer(CLOUD_VISION_API_KEY));
+                    builder.setVisionRequestInitializer(new VisionRequestInitializer(CLOUD_VISION_API_KEY));
                     Vision vision = builder.build();
 
                     BatchAnnotateImagesRequest batchAnnotateImagesRequest =
@@ -130,11 +129,10 @@ public class GoogleLabelGeneratorImpl implements GoogleLabelGenerator    {
     private String parseResultToString(BatchAnnotateImagesResponse response)  throws JSONException {
             String newResultStr = "";
             JSONObject jsonObject;
-            List<EntityAnnotation> labellabels = response.getResponses().get(0).getLabelAnnotations();
-            for (int i = 0; i < labellabels.size(); i++) {
-                jsonObject = new JSONObject(labellabels.get(i));
-                Log.d("resopeso", jsonObject.getString("description"));
-                if(i!=labellabels.size()-1){
+            List<EntityAnnotation> listResponse = response.getResponses().get(0).getLabelAnnotations();
+            for (int i = 0; i < listResponse.size(); i++) {
+                jsonObject = new JSONObject(listResponse.get(i));
+                if(i!=listResponse.size()-1){
                     newResultStr+= jsonObject.getString("description") + ", ";
                 }else{
                     newResultStr+= jsonObject.getString("description");

@@ -42,5 +42,8 @@ dependencies {
     compile 'com.github.clans:fab:1.6.4'
     compile 'com.android.support:recyclerview-v7:25.3.1'
     compile 'com.afollestad:material-camera:0.4.3'
+    //compile group: 'com.google.cloud', name: 'google-cloud-vision', version: '0.8.0'
+    compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
+    compile 'com.squareup.picasso:picasso:2.5.2'
 }
 apply plugin: 'realm-android'

@@ -4,8 +4,6 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
@@ -31,20 +29,22 @@ public class ConvertImageUriToBitmapImpl implements ConvertImageUriToBitmap {
 
 
 
-    @Override // Convert uri to bitmap and pull date info
-    public LabeledImage convertUriToBitmapWithDate(Uri imageUri, Context context, int requestCode) {
+
+    /*@Override // Convert uri to bitmap and pull date info
+    public Bitmap convertUriToStringWithDate(Uri imageUri, Context context, int requestCode) {
         Bitmap bitmap = null;
         String dateCreated = "";
+        String imagePath = "";
         try {
             bitmap = scaleBitmapDown(MediaStore.Images.Media.getBitmap(context.getContentResolver(), imageUri), 1200);
             int angle;
-            String imagePath = "";
+
 
             // Get path if uri received from Camera
             if(requestCode== CAMERA_RQ){
                 imagePath= getRealPathFromURI_CameraSource(context, imageUri);
 
-                // Get path if uri received from Gallery
+                // Get path if uri received from Gallery | Handle two type of image URI
             }else if(Build.VERSION.SDK_INT>= Build.VERSION_CODES.KITKAT){
                 if(imageUri.toString().contains("external")){
                     imagePath= getRealPathFromURI_API19_ExternalSource(context, imageUri);
@@ -61,12 +61,45 @@ public class ConvertImageUriToBitmapImpl implements ConvertImageUriToBitmap {
             if(angle!=0){
                 bitmap = rotateImage(bitmap,angle);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
+        } catch (IOException | ParseException e) {
             e.printStackTrace();
         }
-       return new LabeledImage(bitmap,dateCreated);
+        return bitmap;
+
+    }*/
+
+    @Override // Convert uri to bitmap and pull date info
+    public LabeledImage convertUriToBitmapWithDate(Uri imageUri, Context context, int requestCode) {
+     //   Bitmap bitmap = null;
+        String dateCreated = "";
+        String imagePath = "";
+
+        try {
+        //    bitmap = scaleBitmapDown(MediaStore.Images.Media.getBitmap(context.getContentResolver(), imageUri), 1200);
+
+
+
+            // Get path if uri received from Camera
+            if(requestCode== CAMERA_RQ){
+                imagePath= getRealPathFromURI_CameraSource(context, imageUri);
+
+                // Get path if uri received from Gallery | Handle two type of image URI
+            }else if(Build.VERSION.SDK_INT>= Build.VERSION_CODES.KITKAT){
+                if(imageUri.toString().contains("external")){
+                    imagePath= getRealPathFromURI_API19_ExternalSource(context, imageUri);
+                }else{
+                    imagePath= getRealPathFromURI_API19(context, imageUri);
+                }
+            }else{
+                imagePath= getRealPathFromURI_APIbelow19(context, imageUri);
+            }
+
+            dateCreated =pullDateFromUri(imagePath);
+
+        } catch (IOException | ParseException e) {
+            e.printStackTrace();
+        }
+        return new LabeledImage(dateCreated,imagePath);
 
     }
 
@@ -91,7 +124,7 @@ public class ConvertImageUriToBitmapImpl implements ConvertImageUriToBitmap {
 
 
 
-    private Bitmap scaleBitmapDown(Bitmap bitmap, int maxDimension) {
+   /* private Bitmap scaleBitmapDown(Bitmap bitmap, int maxDimension) {
 
         int originalWidth = bitmap.getWidth();
         int originalHeight = bitmap.getHeight();
@@ -142,7 +175,7 @@ public class ConvertImageUriToBitmapImpl implements ConvertImageUriToBitmap {
             err.printStackTrace();
         }
         return bitmap;
-    }
+    }*/
 
     private String getRealPathFromURI_CameraSource(Context context,Uri contentURI) {
         String result;

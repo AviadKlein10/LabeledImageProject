@@ -11,6 +11,7 @@ public interface GoogleLabelGenerator {
 
     void callCloudVision(LabeledImage bitmapWithDateObj, OnFinishListener onFinishListener) throws IOException;
 
+
     interface OnFinishListener {
         void onFinished(LabeledImage labeledImage);
     }

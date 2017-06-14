@@ -1,15 +1,46 @@
 package tim.pickeyapp.custom_object;
 
-import android.graphics.Bitmap;
+import io.realm.RealmObject;
 
 /**
  * Created by Aviad on 28/05/2017.
  */
-public class LabeledImage {
+public class LabeledImage extends RealmObject {
     private byte[] byteArrImage;
     private String labels;
     private String dateCreated;
-    private Bitmap bitmapImage;
+    private String filePath;
+
+    public LabeledImage(String labels, String dateCreated, String filePath) {
+        this.labels = labels;
+        this.dateCreated = dateCreated;
+        this.filePath = filePath;
+    }
+
+
+
+    public LabeledImage(String dateCreated, String filePath) {
+        this.dateCreated = dateCreated;
+        this.filePath = filePath;
+
+    }
+
+
+
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
+    }
+
+
+
+
+
+
+
 
 
     public LabeledImage() {}
@@ -21,24 +52,11 @@ public class LabeledImage {
         this.dateCreated = dateCreated;
     }
 
-    public LabeledImage(Bitmap bitmapImage,String labels, String dateCreated) {
-        this.bitmapImage = bitmapImage;
-        this.labels = labels;
-        this.dateCreated = dateCreated;
-    }
 
-    public LabeledImage(Bitmap bitmapImage, String dateCreated) {
-        this.bitmapImage = bitmapImage;
-        this.dateCreated = dateCreated;
-    }
 
-    public Bitmap getBitmapImage() {
-        return bitmapImage;
-    }
 
-    public void setBitmapImage(Bitmap bitmapImage) {
-        this.bitmapImage = bitmapImage;
-    }
+
+
 
     public String getDateCreated() {
         return dateCreated;

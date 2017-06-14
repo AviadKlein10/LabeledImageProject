@@ -1,6 +1,7 @@
 package tim.pickeyapp.model;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -21,6 +22,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,12 +39,14 @@ public class GoogleLabelGeneratorImpl implements GoogleLabelGenerator    {
     private String CLOUD_VISION_API_KEY;
     private Bitmap scaledBitmap;
     private String dateCreated;
+    private String imagePath;
 
     @Override
     public void callCloudVision(LabeledImage bitmapWithDateObj, final OnFinishListener onFinishListener) throws IOException {
 
         CLOUD_VISION_API_KEY ="AIzaSyDkPD_rauwdC_m5ySY8KbSSMkQM192HRDI";
-       final Bitmap bitmap = bitmapWithDateObj.getBitmapImage();
+        imagePath = bitmapWithDateObj.getFilePath();
+        final Bitmap bitmap =getBitmap(imagePath);
         dateCreated = bitmapWithDateObj.getDateCreated();
         new AsyncTask<Object, Void, String>() {
 
@@ -76,7 +81,9 @@ public class GoogleLabelGeneratorImpl implements GoogleLabelGenerator    {
 
                         // Base64 encode the JPEG
                         base64EncodedImage.encodeContent(imageBytes);
+
                         annotateImageRequest.setImage(base64EncodedImage);
+
 
                         // add the features we want
                         annotateImageRequest.setFeatures(new ArrayList<Feature>() {{
@@ -95,6 +102,9 @@ public class GoogleLabelGeneratorImpl implements GoogleLabelGenerator    {
                     annotateRequest.setDisableGZipContent(true);
 
                     BatchAnnotateImagesResponse response = annotateRequest.execute();
+
+
+
                     return parseResultToString(response);
 
                 } catch (GoogleJsonResponseException e) {
@@ -105,8 +115,8 @@ public class GoogleLabelGeneratorImpl implements GoogleLabelGenerator    {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                return "Cloud Vision API request failed. Check logs for details.";
 
+                return "Cloud Vision API request failed. Check logs for details.";
             }
 
             protected void onPostExecute(String result) {
@@ -115,16 +125,29 @@ public class GoogleLabelGeneratorImpl implements GoogleLabelGenerator    {
                     case "Cloud Vision API request failed. Check logs for details.":
                         //error
                         onCloudVisionError();  //displays error message to user
-                        onFinishListener.onFinished(new LabeledImage(scaledBitmap,"error", dateCreated));
+                        onFinishListener.onFinished(new LabeledImage("error", dateCreated,imagePath));
                         break;
                     default:
-                        onFinishListener.onFinished(new LabeledImage(scaledBitmap,result,dateCreated));
+                        onFinishListener.onFinished(new LabeledImage(result,dateCreated,imagePath));
                         break;
                 }
             }
         }.execute();
     }
 
+    private Bitmap getBitmap(String path) {
+        try {
+            Bitmap bitmap=null;
+            File f= new File(path);
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+
+            bitmap = BitmapFactory.decodeStream(new FileInputStream(f), null, options);
+            return bitmap;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }}
 
     private String parseResultToString(BatchAnnotateImagesResponse response)  throws JSONException {
             String newResultStr = "";
@@ -134,10 +157,12 @@ public class GoogleLabelGeneratorImpl implements GoogleLabelGenerator    {
                 jsonObject = new JSONObject(listResponse.get(i));
                 if(i!=listResponse.size()-1){
                     newResultStr+= jsonObject.getString("description") + ", ";
+
                 }else{
                     newResultStr+= jsonObject.getString("description");
                 }
             }
+        Log.d("saywaht",newResultStr);
             return newResultStr;
 
     }

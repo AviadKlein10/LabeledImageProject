@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,12 +13,15 @@ import android.view.animation.AnimationUtils;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+
+import java.io.File;
 import java.util.ArrayList;
 
 import tim.pickeyapp.MainView;
 import tim.pickeyapp.R;
-import tim.pickeyapp.custom_view.AutoResizeTextView;
 import tim.pickeyapp.custom_object.LabeledImage;
+import tim.pickeyapp.custom_view.AutoResizeTextView;
 import tim.pickeyapp.custom_view.RoundedImageView;
 
 /**
@@ -43,9 +47,10 @@ public class AdapterImagesList extends RecyclerView.Adapter<AdapterImagesList.Vi
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int i) {
-        if (arrLabeledImages.get(i).getBitmapImage() != null) {
-            // I know it's better to load image inside of recyclerView using library. But Glide, Picasso and UIL can't handle local bitmap
-            holder.image.setImageBitmap(arrLabeledImages.get(i).getBitmapImage());
+        if (!arrLabeledImages.get(i).getFilePath().trim().equals("")){
+          Glide.with(context).load(new File(arrLabeledImages.get(i).getFilePath())).into(holder.image);
+            Log.d("heyyeyey","fckmeee");
+
             holder.progressBar.setVisibility(View.GONE);
         } else {
             holder.progressBar.setVisibility(View.VISIBLE);
@@ -64,7 +69,7 @@ public class AdapterImagesList extends RecyclerView.Adapter<AdapterImagesList.Vi
             @Override
             public void onClick(View v) {
                 int position = holder.getAdapterPosition();
-                if (arrLabeledImages.get(position).getBitmapImage() != null) {
+                if (arrLabeledImages.get(position).getFilePath().trim().equals("")) {
                     mainView.onImageItemClick(holder.getAdapterPosition(), arrLabeledImages.get(position).getLabels(), holder.txtLabels, holder.image, arrLabeledImages.get(position));
                 }
             }
@@ -75,7 +80,7 @@ public class AdapterImagesList extends RecyclerView.Adapter<AdapterImagesList.Vi
             public boolean onLongClick(View view) {
                 // Remove Image when long pressed
                 int position = holder.getAdapterPosition();
-                arrLabeledImages.get(position).setBitmapImage(null);
+                //arrLabeledImages.get(position).setBitmapImage(null);
                 holder.image.setImageResource(R.drawable.ic_place_holder);
                 arrLabeledImages.remove(position);
                 notifyItemRemoved(position);
@@ -115,7 +120,7 @@ public class AdapterImagesList extends RecyclerView.Adapter<AdapterImagesList.Vi
 
 
     public void addLoadingItem() {
-        arrLabeledImages.add(0, new LabeledImage(null, " "));
+        arrLabeledImages.add(0, new LabeledImage(" ", " "));
         notifyItemInserted(0);
     }
 

@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -28,6 +29,8 @@ import com.afollestad.materialcamera.MaterialCamera;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,11 +39,9 @@ import io.realm.Realm;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
 import tim.pickeyapp.custom_object.LabeledImage;
-import tim.pickeyapp.custom_object.LabeledImageRealm;
 import tim.pickeyapp.model.AdapterImagesList;
 import tim.pickeyapp.model.ConvertImageUriToBitmapImpl;
 import tim.pickeyapp.model.GoogleLabelGeneratorImpl;
-import tim.pickeyapp.model.StoreAndRetrievingDataImpl;
 
 public class MainActivity extends AppCompatActivity implements MainView, View.OnClickListener {
 
@@ -66,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements MainView, View.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Realm.init(this);
-        presenter = new MainPresenterImpl(this, new GoogleLabelGeneratorImpl(), new ConvertImageUriToBitmapImpl(), new StoreAndRetrievingDataImpl());
+        presenter = new MainPresenterImpl(this, new GoogleLabelGeneratorImpl(), new ConvertImageUriToBitmapImpl());
         realm = Realm.getDefaultInstance();
         initViews();
     }
@@ -119,12 +120,7 @@ public class MainActivity extends AppCompatActivity implements MainView, View.On
         });
     }
 
-    // Load last list
-    private ArrayList<LabeledImage> loadList() {
-        RealmQuery<LabeledImageRealm> query = realm.where(LabeledImageRealm.class);
-        RealmResults<LabeledImageRealm> results = query.findAll();
-        return presenter.onLoadList(results);
-    }
+
 
     // Intent for library
     private void selectFromLibrary() {
@@ -234,7 +230,7 @@ public class MainActivity extends AppCompatActivity implements MainView, View.On
         try {
 
             stream = openFileOutput(filename, Context.MODE_PRIVATE);
-            Bitmap bitmap = labeledImage.getBitmapImage();
+            Bitmap bitmap = getBitmap(labeledImage.getFilePath());
             if (bitmap != null) {
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
             }
@@ -257,24 +253,43 @@ public class MainActivity extends AppCompatActivity implements MainView, View.On
         }
     }
 
+    public Bitmap getBitmap(String path) {
+        try {
+            Bitmap bitmap=null;
+            File f= new File(path);
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+
+            bitmap = BitmapFactory.decodeStream(new FileInputStream(f), null, options);
+            return bitmap;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }}
+
     private void saveList() {
         // Delete previous saved list
         if (arrLabeledImages.size() != 0) {
             realm.executeTransaction(new Realm.Transaction() {
                 @Override
                 public void execute(Realm realm) {
-                    RealmResults<LabeledImageRealm> result = realm.where(LabeledImageRealm.class).findAll();
+                    RealmResults<LabeledImage> result = realm.where(LabeledImage.class).findAll();
                     result.deleteAllFromRealm();
                 }
             });
-            final ArrayList<LabeledImageRealm> arrtem = presenter.onSaveList(arrLabeledImages);
             realm.executeTransaction(new Realm.Transaction() {
                 @Override
                 public void execute(Realm realm) {
-                    realm.copyToRealmOrUpdate(arrtem);
+                    realm.copyToRealmOrUpdate(arrLabeledImages);
                 }
             });
         }
+    }
+    // Load last list
+    private ArrayList<LabeledImage> loadList() {
+        RealmQuery<LabeledImage> query = realm.where(LabeledImage.class);
+        RealmResults<LabeledImage> results = query.findAll();
+        return new ArrayList<>(results);
     }
 
 

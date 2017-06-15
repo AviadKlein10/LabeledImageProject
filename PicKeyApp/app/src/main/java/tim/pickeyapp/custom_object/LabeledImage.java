@@ -1,6 +1,7 @@
 package tim.pickeyapp.custom_object;
 
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by Aviad on 28/05/2017.
@@ -9,6 +10,7 @@ public class LabeledImage extends RealmObject {
     private byte[] byteArrImage;
     private String labels;
     private String dateCreated;
+    @PrimaryKey
     private String filePath;
 
     public LabeledImage(String labels, String dateCreated, String filePath) {

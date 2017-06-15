@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,10 +46,8 @@ public class AdapterImagesList extends RecyclerView.Adapter<AdapterImagesList.Vi
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int i) {
-        if (!arrLabeledImages.get(i).getFilePath().trim().equals("")){
+        if (!arrLabeledImages.get(i).getFilePath().equals("")){
           Glide.with(context).load(new File(arrLabeledImages.get(i).getFilePath())).into(holder.image);
-            Log.d("heyyeyey","fckmeee");
-
             holder.progressBar.setVisibility(View.GONE);
         } else {
             holder.progressBar.setVisibility(View.VISIBLE);
@@ -69,7 +66,7 @@ public class AdapterImagesList extends RecyclerView.Adapter<AdapterImagesList.Vi
             @Override
             public void onClick(View v) {
                 int position = holder.getAdapterPosition();
-                if (arrLabeledImages.get(position).getFilePath().trim().equals("")) {
+                if (!arrLabeledImages.get(position).getLabels().equals("")) {
                     mainView.onImageItemClick(holder.getAdapterPosition(), arrLabeledImages.get(position).getLabels(), holder.txtLabels, holder.image, arrLabeledImages.get(position));
                 }
             }
@@ -80,7 +77,6 @@ public class AdapterImagesList extends RecyclerView.Adapter<AdapterImagesList.Vi
             public boolean onLongClick(View view) {
                 // Remove Image when long pressed
                 int position = holder.getAdapterPosition();
-                //arrLabeledImages.get(position).setBitmapImage(null);
                 holder.image.setImageResource(R.drawable.ic_place_holder);
                 arrLabeledImages.remove(position);
                 notifyItemRemoved(position);
@@ -120,7 +116,7 @@ public class AdapterImagesList extends RecyclerView.Adapter<AdapterImagesList.Vi
 
 
     public void addLoadingItem() {
-        arrLabeledImages.add(0, new LabeledImage(" ", " "));
+        arrLabeledImages.add(0, new LabeledImage("","",""));
         notifyItemInserted(0);
     }
 

@@ -28,58 +28,12 @@ public class ConvertImageUriToBitmapImpl implements ConvertImageUriToBitmap {
     final private int CAMERA_RQ = 6969;
 
 
-
-
-    /*@Override // Convert uri to bitmap and pull date info
-    public Bitmap convertUriToStringWithDate(Uri imageUri, Context context, int requestCode) {
-        Bitmap bitmap = null;
-        String dateCreated = "";
-        String imagePath = "";
-        try {
-            bitmap = scaleBitmapDown(MediaStore.Images.Media.getBitmap(context.getContentResolver(), imageUri), 1200);
-            int angle;
-
-
-            // Get path if uri received from Camera
-            if(requestCode== CAMERA_RQ){
-                imagePath= getRealPathFromURI_CameraSource(context, imageUri);
-
-                // Get path if uri received from Gallery | Handle two type of image URI
-            }else if(Build.VERSION.SDK_INT>= Build.VERSION_CODES.KITKAT){
-                if(imageUri.toString().contains("external")){
-                    imagePath= getRealPathFromURI_API19_ExternalSource(context, imageUri);
-                }else{
-                    imagePath= getRealPathFromURI_API19(context, imageUri);
-                }
-            }else{
-                imagePath= getRealPathFromURI_APIbelow19(context, imageUri);
-            }
-
-            dateCreated =pullDateFromUri(imagePath);
-            angle = checkIfRotated(imagePath);
-
-            if(angle!=0){
-                bitmap = rotateImage(bitmap,angle);
-            }
-        } catch (IOException | ParseException e) {
-            e.printStackTrace();
-        }
-        return bitmap;
-
-    }*/
-
     @Override // Convert uri to bitmap and pull date info
     public LabeledImage convertUriToBitmapWithDate(Uri imageUri, Context context, int requestCode) {
-     //   Bitmap bitmap = null;
         String dateCreated = "";
         String imagePath = "";
 
         try {
-        //    bitmap = scaleBitmapDown(MediaStore.Images.Media.getBitmap(context.getContentResolver(), imageUri), 1200);
-
-
-
-            // Get path if uri received from Camera
             if(requestCode== CAMERA_RQ){
                 imagePath= getRealPathFromURI_CameraSource(context, imageUri);
 
@@ -123,59 +77,6 @@ public class ConvertImageUriToBitmapImpl implements ConvertImageUriToBitmap {
 
 
 
-
-   /* private Bitmap scaleBitmapDown(Bitmap bitmap, int maxDimension) {
-
-        int originalWidth = bitmap.getWidth();
-        int originalHeight = bitmap.getHeight();
-        int resizedWidth = maxDimension;
-        int resizedHeight = maxDimension;
-
-        if (originalHeight > originalWidth) {
-            resizedHeight = maxDimension;
-            resizedWidth = (int) (resizedHeight * (float) originalWidth / (float) originalHeight);
-        } else if (originalWidth > originalHeight) {
-            resizedWidth = maxDimension;
-            resizedHeight = (int) (resizedWidth * (float) originalHeight / (float) originalWidth);
-        } else if (originalHeight == originalWidth) {
-            resizedHeight = maxDimension;
-            resizedWidth = maxDimension;
-        }
-        return Bitmap.createScaledBitmap(bitmap, resizedWidth, resizedHeight, false);
-    }
-
-    private int checkIfRotated(String imagePath) throws IOException {
-        ExifInterface ei = new ExifInterface(imagePath);
-        int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-        int angle = 0;
-        switch(orientation) {
-            case ExifInterface.ORIENTATION_ROTATE_90:
-                angle = 90;
-                break;
-            case ExifInterface.ORIENTATION_ROTATE_180:
-                angle = 180;
-                break;
-            case ExifInterface.ORIENTATION_ROTATE_270:
-                angle = 270;
-                break;
-        }
-        return angle;
-    }
-
-
-    private Bitmap rotateImage(Bitmap source, float angle) {
-
-        Bitmap bitmap = null;
-        Matrix matrix = new Matrix();
-        matrix.postRotate(angle);
-        try {
-            bitmap = Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
-                    matrix, true);
-        } catch (OutOfMemoryError err) {
-            err.printStackTrace();
-        }
-        return bitmap;
-    }*/
 
     private String getRealPathFromURI_CameraSource(Context context,Uri contentURI) {
         String result;

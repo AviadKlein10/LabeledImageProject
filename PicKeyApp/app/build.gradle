@@ -32,7 +32,7 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:design:25.3.1'
     compile 'com.android.support:support-v4:25.3.1'
-    compile 'com.github.bumptech.glide:glide:4.0.0-RC0'
+    compile 'com.github.bumptech.glide:glide:3.8.0'
     compile 'com.google.android.gms:play-services-base:10.0.1'
     compile 'com.google.android.gms:play-services-auth:10.0.1'
     compile 'com.google.api-client:google-api-client-android:1.21.0' exclude module: 'httpclient'
@@ -42,8 +42,7 @@ dependencies {
     compile 'com.github.clans:fab:1.6.4'
     compile 'com.android.support:recyclerview-v7:25.3.1'
     compile 'com.afollestad:material-camera:0.4.3'
-    //compile group: 'com.google.cloud', name: 'google-cloud-vision', version: '0.8.0'
-    compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
-    compile 'com.squareup.picasso:picasso:2.5.2'
+
+
 }
 apply plugin: 'realm-android'

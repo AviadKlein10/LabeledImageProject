@@ -2,11 +2,8 @@ package tim.pickeyapp;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -29,9 +26,6 @@ import com.afollestad.materialcamera.MaterialCamera;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -225,21 +219,9 @@ public class MainActivity extends AppCompatActivity implements MainView, View.On
         Intent intent = new Intent(MainActivity.this, LargeImageActivity.class);
         intent.putExtra("txt", str);
         intent.putExtra("date", labeledImage.getDateCreated());
-        String filename = "bitmap.png";
-        FileOutputStream stream = null;
-        try {
+        intent.putExtra("img", labeledImage.getFilePath());
 
-            stream = openFileOutput(filename, Context.MODE_PRIVATE);
-            Bitmap bitmap = getBitmap(labeledImage.getFilePath());
-            if (bitmap != null) {
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-            }
-            //Cleanup
-            stream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        intent.putExtra("img", filename);
+
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             Pair<View, String> pair1 = Pair.create(txtView, ViewCompat.getTransitionName(txtView));
             Pair<View, String> pair2 = Pair.create(imgView, ViewCompat.getTransitionName(imgView));
@@ -253,19 +235,6 @@ public class MainActivity extends AppCompatActivity implements MainView, View.On
         }
     }
 
-    public Bitmap getBitmap(String path) {
-        try {
-            Bitmap bitmap=null;
-            File f= new File(path);
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-
-            bitmap = BitmapFactory.decodeStream(new FileInputStream(f), null, options);
-            return bitmap;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }}
 
     private void saveList() {
         // Delete previous saved list
@@ -273,13 +242,7 @@ public class MainActivity extends AppCompatActivity implements MainView, View.On
             realm.executeTransaction(new Realm.Transaction() {
                 @Override
                 public void execute(Realm realm) {
-                    RealmResults<LabeledImage> result = realm.where(LabeledImage.class).findAll();
-                    result.deleteAllFromRealm();
-                }
-            });
-            realm.executeTransaction(new Realm.Transaction() {
-                @Override
-                public void execute(Realm realm) {
+
                     realm.copyToRealmOrUpdate(arrLabeledImages);
                 }
             });
@@ -287,9 +250,11 @@ public class MainActivity extends AppCompatActivity implements MainView, View.On
     }
     // Load last list
     private ArrayList<LabeledImage> loadList() {
-        RealmQuery<LabeledImage> query = realm.where(LabeledImage.class);
-        RealmResults<LabeledImage> results = query.findAll();
-        return new ArrayList<>(results);
+
+            RealmQuery<LabeledImage> query = realm.where(LabeledImage.class);
+            RealmResults<LabeledImage> results = query.findAll();
+            return new ArrayList<>(results);
+
     }
 
 
